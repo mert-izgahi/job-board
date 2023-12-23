@@ -1,9 +1,10 @@
 import { Express, Request, Response } from "express";
-
+import { register } from "./controllers/user.controller";
+import { createUserSchema } from "./schema/user.schema";
+import validate from "./middleware/validateResource";
 function router(app: Express) {
-  app.get("/", (req: Request, res: Response) => {
-    res.send("Hello World!");
-  });
+  // USER ROUTES
+  app.post("/api/register", validate(createUserSchema), register);
 }
 
 export default router;

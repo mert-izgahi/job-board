@@ -2,8 +2,45 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import config from "config";
 
+export interface SkillDocument extends mongoose.Document {
+  title: string;
+  level: number;
+}
 
+export interface LanguageDocument extends mongoose.Document {
+  name: string;
+  level: number;
+}
 
+export interface UserDocument extends mongoose.Document {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  photo: string;
+  bio: string;
+  location: {
+    type: string;
+    coordinates: number[];
+    formattedAddress: string;
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    zipcode: string;
+  };
+  languages: LanguageDocument[];
+  skills: SkillDocument[];
+  availability: string;
+  hourlyRate: number;
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+  generateToken(): string;
+  //   generateResetPasswordToken(): string;
+  //   generateVerificationToken(): string;
+  //   generatePasswordResetToken(): string;
+}
 
 const userSchema = new mongoose.Schema(
   {
@@ -105,6 +142,20 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  const salt = await bcrypt.genSalt(config.get<number>("saltWorkFactor"));
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+) {
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  return isMatch;
+};
 
 
 const User = mongoose.model("User", userSchema);

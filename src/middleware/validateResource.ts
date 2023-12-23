@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { AnyZodObject } from "zod";
 const validate =
   (schema: any) => (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -8,8 +7,17 @@ const validate =
         query: req.query,
         params: req.params,
       });
+      next();
     } catch (e: any) {
-      return res.status(400).send(e.errors);
+      return res.status(400).send(
+        e.errors.map((e: any) => {
+          return {
+            type: "ValidationError",
+            path: e.path,
+            message: e.message,
+          };
+        })
+      );
     }
   };
 

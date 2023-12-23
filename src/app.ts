@@ -5,6 +5,7 @@ import { _logger } from "./utils/logger";
 import router from "./router";
 
 const app = express();
+app.use(express.json());
 const port = config.get<number>("port");
 
 const main = async () => {

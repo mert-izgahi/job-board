@@ -1,7 +1,8 @@
-import { FilterQuery, SchemaDefinition } from "mongoose";
+import { FilterQuery, SchemaDefinition, UpdateQuery } from "mongoose";
 import Session, { SessionDocument } from "../models/session.model";
 import User from "../models/user.model";
-import { omit } from "lodash";
+import { get, omit } from "lodash";
+import { verifyJwt } from "../utils/jwt.utils";
 
 export const createSession = async (
   input: SchemaDefinition<
@@ -46,10 +47,16 @@ export async function findSessions(query: FilterQuery<SessionDocument>) {
   return Session.find(query).lean();
 }
 
-export async function deleteSessions(query: FilterQuery<SessionDocument>) {
-  return await Session.deleteMany(query);
+export async function deleteSessions(
+  query: FilterQuery<SessionDocument>,
+  update: UpdateQuery<SessionDocument>
+) {
+  return await Session.updateMany(query, update);
 }
 
-export async function deleteOneSession(query: FilterQuery<SessionDocument>) {
-  return await Session.deleteOne(query);
+export async function deleteOneSession(
+  query: FilterQuery<SessionDocument>,
+  update: UpdateQuery<SessionDocument>
+) {
+  return await Session.deleteOne(query, update);
 }

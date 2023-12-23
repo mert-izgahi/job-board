@@ -51,7 +51,8 @@ export const getUserSessions = asyncWrapper(
 export const deleteUserSessions = asyncWrapper(
   async (req: Request, res: Response) => {
     const query = { user: res.locals.user._id, isValid: true };
-    const sessions = await deleteSessions(query);
+    const update = { isValid: false };
+    const sessions = await deleteSessions(query, update);
     return res.status(200).send({ data: sessions, message: "Session deleted" });
   }
 );
@@ -59,7 +60,8 @@ export const deleteUserSessions = asyncWrapper(
 export const deleteOneSession = asyncWrapper(
   async (req: Request, res: Response) => {
     const query = { _id: req.params.sessionId };
-    const session = await deleteSessions(query);
+    const update = { isValid: false };
+    const session = await deleteSessions(query, update);
     return res.status(200).send({ data: session, message: "Session deleted" });
   }
 );

@@ -16,7 +16,14 @@ export const deserializeUser = async (
       return next();
     }
     const { decoded, expired } = verifyJwt(accessToken);
-
+    if (expired) {
+      return next(
+        res.status(401).json({
+          status: "fail",
+          message: "Session expired",
+        })
+      );
+    }
     if (decoded) {
       res.locals.user = decoded;
       res.locals.expired = expired;

@@ -6,7 +6,7 @@ export async function createUser(
 ) {
   try {
     const user = await User.create(input);
-    return user;
+    return user
   } catch (e: any) {
     throw new Error(e);
   }

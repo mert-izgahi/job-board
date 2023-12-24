@@ -15,8 +15,9 @@ export const deserializeUser = async (
     if (!accessToken) {
       return next();
     }
+
     const { decoded, expired } = verifyJwt(accessToken);
-    if (expired) {
+    if (expired ) {
       return next(
         res.status(401).json({
           status: "fail",

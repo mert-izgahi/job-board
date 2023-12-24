@@ -1,8 +1,20 @@
 import { FilterQuery, SchemaDefinition, UpdateQuery } from "mongoose";
 import Session, { SessionDocument } from "../models/session.model";
-import User from "../models/user.model";
+import User, { UserDocument } from "../models/user.model";
 import { get, omit } from "lodash";
-import { verifyJwt } from "../utils/jwt.utils";
+
+export async function createUser(
+  input: SchemaDefinition<
+    Omit<UserDocument, "createdAt" | "updatedAt" | "comparePassword">
+  >
+) {
+  try {
+    const user = await User.create(input);
+    return user;
+  } catch (e: any) {
+    throw new Error(e);
+  }
+}
 
 export const createSession = async (
   input: SchemaDefinition<

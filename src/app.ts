@@ -4,6 +4,7 @@ import connect from "./utils/connect";
 import { _logger } from "./utils/logger";
 import router from "./router";
 import { deserializeUser } from "./middleware/deserializeUser";
+import errorHandler from "./middleware/errorHandler";
 
 const app = express();
 app.use(express.json());
@@ -27,6 +28,9 @@ const main = async () => {
       })
     );
   });
+
+  // Error handler
+  app.use(errorHandler);
 };
 
 main();

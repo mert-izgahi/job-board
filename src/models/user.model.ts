@@ -115,12 +115,12 @@ const userSchema = new mongoose.Schema(
     ],
 
     availability: {
-      type: {
-        type: String,
-        default: "availability",
-        enum: ["availability"],
+      type: String,
+      enum: {
+        values: ["full-time", "part-time", "remote", "internship"],
+        message: "{VALUE} is not supported. Invalid availability type",
       },
-      enum: ["full-time", "part-time", "remote"],
+      default: "full-time",
     },
 
     hourlyRate: {
@@ -156,7 +156,6 @@ userSchema.methods.comparePassword = async function (
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
   return isMatch;
 };
-
 
 const User = mongoose.model<UserDocument>("User", userSchema);
 export default User;

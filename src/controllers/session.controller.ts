@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import asyncWrapper from "../middleware/asyncWrapper";
 import {
+  createUser,
   createSession,
   deleteSessions,
   findSessions,
@@ -9,6 +10,18 @@ import {
 import { CreateSessionInput } from "../schema/session.schema";
 import { signJwt } from "../utils/jwt.utils";
 import config from "config";
+import { CreateUserInput } from "../schema/user.schema";
+import { omit } from "lodash";
+
+export const registerUser = asyncWrapper(
+  async (req: Request<{}, {}, CreateUserInput["body"]>, res: Response) => {
+    const user = await createUser(req.body);
+    return res.json({
+      data: omit(user.toJSON(), "password"),
+      message: "User created successfully",
+    });
+  }
+);
 
 export const createUserSession = asyncWrapper(
   async (req: Request<{}, {}, CreateSessionInput["body"]>, res: Response) => {

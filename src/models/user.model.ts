@@ -23,6 +23,9 @@ export interface UserDocument extends mongoose.Document {
   password: string;
   role: string;
   photo: string;
+  coverPhoto: string;
+  companyName: string;
+  jobTitle: string;
   bio: string;
   location: {
     type: string;
@@ -36,6 +39,13 @@ export interface UserDocument extends mongoose.Document {
   };
   languages: LanguageDocument[];
   skills: SkillDocument[];
+  socialLinks: {
+    twitter?: string;
+    facebook?: string;
+    linkedin?: string;
+    instagram?: string;
+    website?: string;
+  };
   availability: string;
   hourlyRate: number;
   createdAt: Date;
@@ -43,9 +53,39 @@ export interface UserDocument extends mongoose.Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
   generateResetPasswordToken(): string;
   resetPassword(password: string): Promise<UserDocument>;
-  //   generateVerificationToken(): string;
-  //   generatePasswordResetToken(): string;
 }
+
+export interface CompanyDocument extends mongoose.Document {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  photo: string;
+  coverPhoto: string;
+  companyName: string;
+  bio: string;
+  jobTitle: string;
+  location: {
+    type: string;
+    coordinates: number[];
+    formattedAddress: string;
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    zipcode: string;
+  };
+
+  socialLinks: {
+    twitter?: string;
+    facebook?: string;
+    linkedin?: string;
+    instagram?: string;
+    website?: string;
+  };
+}
+
+
 
 const userSchema = new mongoose.Schema(
   {
@@ -67,7 +107,10 @@ const userSchema = new mongoose.Schema(
       default: "freelancer",
     },
     photo: { type: String, default: "default.jpg" },
+    coverPhoto: { type: String, default: "default.jpg" },
+    companyName: { type: String },
     bio: { type: String, max: [512, "Bio should be less than 512 characters"] },
+    jobTitle: { type: String },
     location: {
       type: {
         type: String,
@@ -118,6 +161,14 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+
+    socialLinks: {
+      twitter: String,
+      facebook: String,
+      linkedin: String,
+      instagram: String,
+      website: String,
+    },
 
     availability: {
       type: String,

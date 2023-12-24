@@ -1,18 +1,12 @@
 import { Express } from "express";
 import {
-  createLanguageSchema,
-  createSkillSchema,
-  createUserSchema,
-} from "./schema/user.schema";
-import validate from "./middleware/validateResource";
-import {
   createUserSession,
   deleteOneSession,
   deleteUserSessions,
+  forgetPassword,
   getUserSessions,
   registerUser,
 } from "./controllers/session.controller";
-import { createSessionSchema } from "./schema/session.schema";
 import { withAuth } from "./middleware/withAuth";
 import {
   createLanguage,
@@ -30,8 +24,9 @@ import {
 } from "./controllers/user.controller";
 function router(app: Express) {
   // Session ROUTES
-  app.post("/api/register", validate(createUserSchema), registerUser);
-  app.post("/api/sessions", validate(createSessionSchema), createUserSession);
+  app.post("/api/register", registerUser);
+  app.post("/api/sessions", createUserSession);
+  app.put("/api/forgot-password", forgetPassword);
   app.get("/api/sessions", withAuth, getUserSessions);
   app.delete("/api/sessions", withAuth, deleteUserSessions);
   app.delete("/api/sessions/:sessionId", withAuth, deleteOneSession);
@@ -41,34 +36,14 @@ function router(app: Express) {
   app.put("/api/profile", withAuth, updateProfile);
   // Skills ROUTES
   app.get("/api/profile/skills", withAuth, getSkills);
-  app.post(
-    "/api/profile/skills",
-    withAuth,
-    validate(createSkillSchema),
-    createSkill
-  );
-  app.put(
-    "/api/profile/skills/:id",
-    withAuth,
-    validate(createSkillSchema),
-    updateSkill
-  );
+  app.post("/api/profile/skills", withAuth, createSkill);
+  app.put("/api/profile/skills/:id", withAuth, updateSkill);
   app.delete("/api/profile/skills/:id", withAuth, deleteSkill);
 
   // Languages ROUTES
   app.get("/api/profile/languages", withAuth, getLanguages);
-  app.post(
-    "/api/profile/languages",
-    withAuth,
-    validate(createLanguageSchema),
-    createLanguage
-  );
-  app.put(
-    "/api/profile/languages/:id",
-    withAuth,
-    validate(createLanguageSchema),
-    updateLanguage
-  );
+  app.post("/api/profile/languages", withAuth, createLanguage);
+  app.put("/api/profile/languages/:id", withAuth, updateLanguage);
   app.delete("/api/profile/languages/:id", withAuth, deleteLanguage);
 
   app.get("/api/users", withAuth, getUsers);

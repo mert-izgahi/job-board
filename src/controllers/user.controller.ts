@@ -1,14 +1,9 @@
-import {
-  CreateLanguageInput,
-  CreateSkillInput,
-  UpdateUserInput,
-} from "./../schema/user.schema";
 import { Request, Response } from "express";
 import { _logger } from "../utils/logger";
 import asyncWrapper from "../middleware/asyncWrapper";
 import BadRequestError from "../errors/BadRequestError";
 import User, { LanguageDocument, SkillDocument } from "../models/user.model";
-import { omit } from "lodash";
+
 export const getProfile = asyncWrapper(async (req: Request, res: Response) => {
   const user = res.locals.user.payload;
   const profile = await User.findById(user._id).select("-password");
@@ -20,7 +15,7 @@ export const getProfile = asyncWrapper(async (req: Request, res: Response) => {
 });
 
 export const updateProfile = asyncWrapper(
-  async (req: Request<{}, {}, UpdateUserInput["body"]>, res: Response) => {
+  async (req: Request, res: Response) => {
     const user = res.locals.user.payload;
     const query = { _id: user._id };
     const userRef = await User.findOne(query);
@@ -61,7 +56,10 @@ export const getSkills = asyncWrapper(async (req: Request, res: Response) => {
 });
 
 export const createSkill = asyncWrapper(
-  async (req: Request<{}, {}, CreateSkillInput["body"]>, res: Response) => {
+  async (
+    req: Request<{}, {}, { title: string; level: string }>,
+    res: Response
+  ) => {
     const user = res.locals.user.payload;
     const userDoc = await User.findOne({ _id: user._id });
 
@@ -82,7 +80,7 @@ export const createSkill = asyncWrapper(
 
 export const updateSkill = asyncWrapper(
   async (
-    req: Request<{ id: string }, {}, CreateSkillInput["body"]>,
+    req: Request<{ id: string }, {}, { title: string; level: string }>,
     res: Response
   ) => {
     const user = res.locals.user.payload;
@@ -160,7 +158,10 @@ export const getLanguages = asyncWrapper(
 );
 
 export const createLanguage = asyncWrapper(
-  async (req: Request<{}, {}, CreateLanguageInput["body"]>, res: Response) => {
+  async (
+    req: Request<{}, {}, { title: string; level: string }>,
+    res: Response
+  ) => {
     const user = res.locals.user.payload;
     const userDoc = await User.findOne({ _id: user._id });
 
@@ -187,7 +188,7 @@ export const createLanguage = asyncWrapper(
 
 export const updateLanguage = asyncWrapper(
   async (
-    req: Request<{ id: string }, {}, CreateLanguageInput["body"]>,
+    req: Request<{ id: string }, {}, { title: string; level: string }>,
     res: Response
   ) => {
     const user = res.locals.user.payload;
@@ -223,7 +224,7 @@ export const updateLanguage = asyncWrapper(
 );
 
 export const deleteLanguage = asyncWrapper(
-  async (req: Request<{ id: string }>, res: Response) => {
+  async (req: Request<{ id: string }, {}, {}>, res: Response) => {
     const user = res.locals.user.payload;
     const userDoc = await User.findOne({ _id: user._id });
 

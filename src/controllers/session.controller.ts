@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import asyncWrapper from "../middleware/asyncWrapper";
-import { CreateSessionInput } from "../schema/session.schema";
 import { signJwt } from "../utils/jwt.utils";
 import config from "config";
-import { CreateUserInput } from "../schema/user.schema";
 import { omit } from "lodash";
 import User from "../models/user.model";
 import BadRequestError from "../errors/BadRequestError";
@@ -11,7 +9,14 @@ import AuthenticatedError from "../errors/AuthenticatedError";
 import Session from "../models/session.model";
 
 export const registerUser = asyncWrapper(
-  async (req: Request<{}, {}, CreateUserInput["body"]>, res: Response) => {
+  async (
+    req: Request<
+      {},
+      {},
+      { email: string; password: string; name: string; role: string }
+    >,
+    res: Response
+  ) => {
     const existsUser = await User.findOne({ email: req.body.email });
 
     if (existsUser) {
@@ -28,7 +33,10 @@ export const registerUser = asyncWrapper(
 );
 
 export const createUserSession = asyncWrapper(
-  async (req: Request<{}, {}, CreateSessionInput["body"]>, res: Response) => {
+  async (
+    req: Request<{}, {}, { email: string; password: string }>,
+    res: Response
+  ) => {
     // check if user exists
     const user = await User.findOne({ email: req.body.email }).select(
       "+password"
@@ -67,7 +75,7 @@ export const createUserSession = asyncWrapper(
 );
 
 export const getUserSessions = asyncWrapper(
-  async (req: Request<{}, {}, CreateSessionInput["body"]>, res: Response) => {
+  async (req: Request, res: Response) => {
     const user = res.locals.user.payload;
     const query = { user: user._id, isValid: true };
     const sessions = await Session.find(query).lean();
@@ -91,5 +99,18 @@ export const deleteOneSession = asyncWrapper(
     const update = { isValid: false };
     const session = await Session.updateOne(query, update);
     return res.status(200).send({ data: session, message: "Session deleted" });
+  }
+);
+
+export const forgetPassword = asyncWrapper(
+  async (req: Request<{}, {}, { email: string }>, res: Response) => {
+    // const session = await Session.updateOne(query, update);
+    res.status(200).send({ data: "Forget password", message: "Success" });
+  }
+);
+
+export const resetPassword = asyncWrapper(
+  async (req: Request, res: Response) => {
+    res.status(200).send({ data: "Reset password", message: "Success" });
   }
 );

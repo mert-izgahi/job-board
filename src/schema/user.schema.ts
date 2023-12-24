@@ -75,6 +75,31 @@ export const createSkillSchema = object({
   ),
 });
 
+export const createLanguageSchema = object({
+  body: object({
+    title: string({
+      required_error: "Name is required",
+    }),
+    level: string({
+      required_error: "Level is required",
+    }),
+  }).refine(
+    (data) => {
+      if (
+        ["beginner", "intermediate", "advanced", "expert"].includes(data.level)
+      ) {
+        return true;
+      }
+      return false;
+    },
+    {
+      message: "Invalid level",
+      path: ["level"],
+    }
+  ),
+});
+
 export type CreateUserInput = TypeOf<typeof createUserSchema>;
 export type UpdateUserInput = TypeOf<typeof updateUserSchema>;
 export type CreateSkillInput = TypeOf<typeof createSkillSchema>;
+export type CreateLanguageInput = TypeOf<typeof createLanguageSchema>;

@@ -3,13 +3,17 @@ import bcrypt from "bcrypt";
 import config from "config";
 
 export interface SkillDocument {
+  type?: "skill";
   title: string;
   level: string;
+  _id?: mongoose.Types.ObjectId;
 }
 
 export interface LanguageDocument {
-  name: string;
-  level: number;
+  type?: "language";
+  title: string;
+  level: string;
+  _id?: mongoose.Types.ObjectId;
 }
 
 export interface UserDocument extends mongoose.Document {

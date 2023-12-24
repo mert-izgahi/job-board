@@ -7,17 +7,16 @@ export const deserializeUser = async (
   next: NextFunction
 ) => {
   try {
-    const accessToken = get(req, "headers.authorization", "").replace(
-      /Bearer\s/,
-      ""
-    );
+    const accessToken =
+      get(req, "headers.authorization", "").replace(/Bearer\s/, "") ||
+      req.signedCookies.accessToken;
 
     if (!accessToken) {
       return next();
     }
 
     const { decoded, expired } = verifyJwt(accessToken);
-    if (expired ) {
+    if (expired) {
       return next(
         res.status(401).json({
           status: "fail",
@@ -25,7 +24,7 @@ export const deserializeUser = async (
         })
       );
     }
-    
+
     if (decoded) {
       res.locals.user = decoded;
       res.locals.expired = expired;

@@ -7,7 +7,6 @@ const asyncWrapper = (func: Function) => {
       await func(req, res, next);
     } catch (error) {
       if (error instanceof Error) {
-        _logger.error(error.message);
         return next(error);
       } else {
         _logger.error("Something went wrong");

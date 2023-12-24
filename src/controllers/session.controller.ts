@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Request, Response } from "express";
 import asyncWrapper from "../middleware/asyncWrapper";
 import { signJwt } from "../utils/jwt.utils";
@@ -7,7 +8,8 @@ import User from "../models/user.model";
 import BadRequestError from "../errors/BadRequestError";
 import AuthenticatedError from "../errors/AuthenticatedError";
 import Session from "../models/session.model";
-
+import MailSender from "../utils/mailSender";
+import { _logger } from '../utils/logger';
 export const registerUser = asyncWrapper(
   async (
     req: Request<
@@ -104,13 +106,43 @@ export const deleteOneSession = asyncWrapper(
 
 export const forgetPassword = asyncWrapper(
   async (req: Request<{}, {}, { email: string }>, res: Response) => {
-    // const session = await Session.updateOne(query, update);
-    res.status(200).send({ data: "Forget password", message: "Success" });
+    const email = req.body.email;
+    const userDoc = await User.findOne({ email });
+    if (!userDoc) {
+      throw new BadRequestError("User not found");
+    }
+
+    const resetToken = await userDoc.generateResetPasswordToken();
+
+    await userDoc.save();
+
+    // send email
+    const sender = new MailSender();
+    await sender.sendResetPasswordEmail(userDoc, resetToken);
+
+    res
+      .status(200)
+      .send({ data: "Email sent", message: "Reset password email sent" });
   }
 );
 
 export const resetPassword = asyncWrapper(
-  async (req: Request, res: Response) => {
-    res.status(200).send({ data: "Reset password", message: "Success" });
+  async (
+    req: Request<{ token: string }, {}, { password: string }>,
+    res: Response
+  ) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const decodedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const userDoc = await User.findOne({ resetToken: decodedToken });
+
+    if (!userDoc) {
+      throw new BadRequestError("Invalid token");
+    }
+
+    const updatedUserDoc = await userDoc.resetPassword(token, password);
+
+    res.status(200).send({ data: updatedUserDoc, message: "Password updated successfully" });
   }
 );

@@ -6,6 +6,7 @@ import {
   forgetPassword,
   getUserSessions,
   registerUser,
+  resetPassword,
 } from "./controllers/session.controller";
 import { withAuth } from "./middleware/withAuth";
 import {
@@ -27,6 +28,7 @@ function router(app: Express) {
   app.post("/api/register", registerUser);
   app.post("/api/sessions", createUserSession);
   app.put("/api/forgot-password", forgetPassword);
+  app.put("/api/reset-password/:token", resetPassword);
   app.get("/api/sessions", withAuth, getUserSessions);
   app.delete("/api/sessions", withAuth, deleteUserSessions);
   app.delete("/api/sessions/:sessionId", withAuth, deleteOneSession);

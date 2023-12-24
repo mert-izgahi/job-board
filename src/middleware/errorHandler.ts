@@ -15,17 +15,15 @@ export default function errorHandler(
       type: "BadRequest",
       message: error.message,
     });
-  }
-
-  if(error instanceof AuthenticatedError){
+  } else if (error instanceof AuthenticatedError) {
     return res.status(401).json({
       type: "AuthenticatedError",
       message: error.message,
     });
+  } else {
+    res.json({
+      message: error.message,
+      stack: process.env.NODE_ENV === "production" ? "🥞" : error.stack,
+    });
   }
-
-  res.json({
-    message: error.message,
-    stack: process.env.NODE_ENV === "production" ? "🥞" : error.stack,
-  });
 }

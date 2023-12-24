@@ -1,5 +1,5 @@
-import { Express, Request, Response } from "express";
-import { createUserSchema } from "./schema/user.schema";
+import { Express } from "express";
+import { createSkillSchema, createUserSchema } from "./schema/user.schema";
 import validate from "./middleware/validateResource";
 import {
   createUserSession,
@@ -10,7 +10,15 @@ import {
 } from "./controllers/session.controller";
 import { createSessionSchema } from "./schema/session.schema";
 import { withAuth } from "./middleware/withAuth";
-import { getProfile, getUser, updateProfile } from "./controllers/user.controller";
+import {
+  createSkill,
+  getLanguages,
+  getProfile,
+  getSkills,
+  getUser,
+  getUsers,
+  updateProfile,
+} from "./controllers/user.controller";
 function router(app: Express) {
   // Session ROUTES
   app.post("/api/register", validate(createUserSchema), registerUser);
@@ -21,7 +29,11 @@ function router(app: Express) {
 
   // User ROUTES
   app.get("/api/profile", withAuth, getProfile);
-  app.patch("/api/profile", withAuth, updateProfile);
+  app.get("/api/profile/skills", withAuth, getSkills);
+  app.post("/api/profile/skills", withAuth,validate(createSkillSchema), createSkill);
+  app.get("/api/profile/languages", withAuth, getLanguages);
+  app.put("/api/profile", withAuth, updateProfile);
+  app.get("/api/users", withAuth, getUsers);
   app.get("/api/users/:id", withAuth, getUser);
 }
 

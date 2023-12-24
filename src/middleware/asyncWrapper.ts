@@ -8,12 +8,7 @@ const asyncWrapper = (func: Function) => {
     } catch (error) {
       if (error instanceof Error) {
         _logger.error(error.message);
-        return next(
-          res.status(400).send({
-            type: "Error",
-            message: error.message,
-          })
-        );
+        return next(error);
       } else {
         _logger.error("Something went wrong");
         return next(res.status(400).send("Something went wrong"));

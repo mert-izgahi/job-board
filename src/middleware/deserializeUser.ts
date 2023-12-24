@@ -25,6 +25,7 @@ export const deserializeUser = async (
         })
       );
     }
+    
     if (decoded) {
       res.locals.user = decoded;
       res.locals.expired = expired;

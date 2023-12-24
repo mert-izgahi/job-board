@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import config from "config";
 
-export interface SkillDocument extends mongoose.Document {
+export interface SkillDocument {
   title: string;
-  level: number;
+  level: string;
 }
 
-export interface LanguageDocument extends mongoose.Document {
+export interface LanguageDocument {
   name: string;
   level: number;
 }

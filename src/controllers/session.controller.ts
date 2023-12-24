@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import { Request, Response } from "express";
+import crypto from "crypto";
+import { CookieOptions, Request, Response } from "express";
 import asyncWrapper from "../middleware/asyncWrapper";
 import { signJwt } from "../utils/jwt.utils";
 import config from "config";
@@ -9,7 +9,9 @@ import BadRequestError from "../errors/BadRequestError";
 import AuthenticatedError from "../errors/AuthenticatedError";
 import Session from "../models/session.model";
 import MailSender from "../utils/mailSender";
-import { _logger } from '../utils/logger';
+import { _logger } from "../utils/logger";
+import dayjs from "dayjs";
+
 export const registerUser = asyncWrapper(
   async (
     req: Request<
@@ -68,6 +70,24 @@ export const createUserSession = asyncWrapper(
       { payload, session: session._id },
       { expiresIn: config.get<string>("jwt_EXPIRY") }
     );
+
+    // assign token to cookie
+    const cookieOptions: CookieOptions = {
+      maxAge: dayjs().add(30, "days").valueOf(), // 30 days
+      httpOnly: true,
+      domain: config.get<string>("domain"),
+      // sameSite: "strict",
+      secure: false, // only send cookie over https
+    };
+
+    if (config.get<string>("node_env") === "production") {
+      cookieOptions.secure = true;
+    }
+
+    res.cookie("accessToken", accessToken, {
+      ...cookieOptions,
+      signed: true,
+    });
 
     // return access token
     return res
@@ -134,15 +154,21 @@ export const resetPassword = asyncWrapper(
     const { token } = req.params;
     const { password } = req.body;
 
-    const decodedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const decodedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
     const userDoc = await User.findOne({ resetToken: decodedToken });
 
     if (!userDoc) {
       throw new BadRequestError("Invalid token");
     }
 
-    const updatedUserDoc = await userDoc.resetPassword(token, password);
+    await userDoc.resetPassword(password);
 
-    res.status(200).send({ data: updatedUserDoc, message: "Password updated successfully" });
+    res.status(200).send({
+      data: "Password updated",
+      message: "Password updated successfully",
+    });
   }
 );

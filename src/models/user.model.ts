@@ -42,7 +42,7 @@ export interface UserDocument extends mongoose.Document {
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
   generateResetPasswordToken(): string;
-  resetPassword(token: string, password: string): Promise<UserDocument>;
+  resetPassword(password: string): Promise<UserDocument>;
   //   generateVerificationToken(): string;
   //   generatePasswordResetToken(): string;
 }
@@ -150,8 +150,9 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-
   const salt = await bcrypt.genSalt(config.get<number>("saltWorkFactor"));
+  console.log(this.password);
+
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
@@ -174,15 +175,13 @@ userSchema.methods.generateResetPasswordToken = function () {
   return resetToken;
 };
 
-
 userSchema.methods.resetPassword = async function (password: string) {
   this.password = password;
   this.resetToken = undefined;
   this.resetTokenExpires = undefined;
   await this.save();
   return this;
-}
-
+};
 
 const User = mongoose.model<UserDocument>("User", userSchema);
 export default User;
